@@ -4,16 +4,47 @@ on:
   push:
     branches:
       - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout do Código
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
-      - name: Configuração do Ambiente
-        run: echo "Ambiente configurado"
+      - name: Instalar o Poetry
+        run: |
+          curl -sSL https://install.python-poetry.org | python3 -
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
 
-      - name: Execução de Testes
-        run: echo "Rodando testes..."
+      - name: Configurar cache do Poetry
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cache/pypoetry
+            ~/.cache/pip
+          key: poetry-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}
+          restore-keys: |
+            poetry-${{ runner.os }}-
+
+      - name: Instalar dependências
+        run: poetry install
+
+      - name: Rodar Testes com Pytest
+        run: poetry run pytest
+
+      - name: Verificar estilo com Flake8
+        run: poetry run flake8 jogo.py
+
+      - name: Verificar estilo com Pylint
+        run: poetry run pylint jogo.py
+
+      - name: Verificar Tipagem com Mypy
+        run: poetry run mypy jogo.py
+
+      - name: Analisar Complexidade com Radon
+        run: poetry run radon cc jogo.py -a
