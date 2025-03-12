@@ -5,6 +5,7 @@ description = "Esteira CI/CD Completa"
 authors = [
     {name = "Faber Xavier",email = "faber.henrique@gmail.com"}
 ]
+package-mode = false
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
