@@ -1,55 +1,72 @@
-import pygame
+# bola_maluca.py
+
 import random
+import sys
 
-# Inicializa o pygame
-pygame.init()
+import pygame
 
-# Tamanho da tela
-largura = 800
-altura = 600
-tela = pygame.display.set_mode((largura, altura))
-pygame.display.set_caption("🏀 Bola Maluca!")
 
-# Cores
-BRANCO = (255, 255, 255)
-AZUL = (30, 144, 255)
+# Cores RGB
+BRANCO: tuple[int, int, int] = (255, 255, 255)
+AZUL: tuple[int, int, int] = (30, 144, 255)
+
+# Constantes da tela
+LARGURA_TELA = 800
+ALTURA_TELA = 600
 
 # Propriedades da bola
-raio = 30
-x = random.randint(raio, largura - raio)
-y = random.randint(raio, altura - raio)
-vel_x = random.choice([-4, 4])
-vel_y = random.choice([-4, 4])
+RAIO_BOLA = 30
+FPS = 60
 
-# Loop do jogo
-relogio = pygame.time.Clock()
-rodando = True
 
-while rodando:
-    for evento in pygame.event.get():
-        if evento.type == pygame.QUIT:
-            rodando = False
+class Bola:
+    def __init__(self, x: int, y: int, vel_x: int, vel_y: int) -> None:
+        self.x = x
+        self.y = y
+        self.vel_x = vel_x
+        self.vel_y = vel_y
 
-    # Atualiza a posição da bola
-    x += vel_x
-    y += vel_y
+    def mover(self) -> None:
+        self.x += self.vel_x
+        self.y += self.vel_y
 
-    # Rebater nas bordas
-    if x - raio <= 0 or x + raio >= largura:
-        vel_x *= -1
-    if y - raio <= 0 or y + raio >= altura:
-        vel_y *= -1
+        # Rebater nas bordas
+        if self.x - RAIO_BOLA <= 0 or self.x + RAIO_BOLA >= LARGURA_TELA:
+            self.vel_x *= -1
+        if self.y - RAIO_BOLA <= 0 or self.y + RAIO_BOLA >= ALTURA_TELA:
+            self.vel_y *= -1
 
-    # Preenche o fundo
-    tela.fill(BRANCO)
+    def desenhar(self, tela: pygame.Surface) -> None:
+        pygame.draw.circle(tela, AZUL, (self.x, self.y), RAIO_BOLA)
 
-    # Desenha a bola
-    pygame.draw.circle(tela, AZUL, (x, y), raio)
 
-    # Atualiza a tela
-    pygame.display.flip()
+def iniciar_jogo() -> None:
+    pygame.init()
+    tela = pygame.display.set_mode((LARGURA_TELA, ALTURA_TELA))
+    pygame.display.set_caption("🏀 Bola Maluca!")
 
-    # Controla os FPS
-    relogio.tick(60)
+    x_inicial = random.randint(RAIO_BOLA, LARGURA_TELA - RAIO_BOLA)
+    y_inicial = random.randint(RAIO_BOLA, ALTURA_TELA - RAIO_BOLA)
+    bola = Bola(x_inicial, y_inicial, random.choice([-4, 4]), random.choice([-4, 4]))
 
-pygame.quit()
+    relogio = pygame.time.Clock()
+    rodando = True
+
+    while rodando:
+        for evento in pygame.event.get():
+            if evento.type == pygame.QUIT:
+                rodando = False
+
+        bola.mover()
+
+        tela.fill(BRANCO)
+        bola.desenhar(tela)
+        pygame.display.flip()
+        relogio.tick(FPS)
+
+    pygame.quit()
+    sys.exit()
+
+
+if __name__ == "__main__":
+    iniciar_jogo()
